@@ -9,9 +9,7 @@
 
 ##### `shootVideo`
 Параметры:
-| name | type | required | default | description |
-|---|---|---|---|---|
-| duration | int | yes || Длительность видео в секундах. Должно быть > 0 |
++ duration (integer, required) - Длительность видео в секундах. Должно быть > 0
 Снимает видео длительностью *duration* секунд и отдаёт файл (h264) в ответ. При неудаче JSON с описанием ошибки.
 Пример: `/shootVideo?duration=30`
 
@@ -27,9 +25,7 @@
 ## Scripts
 ##### `setScript`
 Параметры:
-| name | type | required | default | description |
-|---|---|---|---|---|
-| script | string | yes || Список **команд** построчно |
++ script (string, required) - Список **команд** построчно
 
 **Команды**:
 1. Время начала (YYYY-MM-DD HH:MM:SS)
