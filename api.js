@@ -1,35 +1,35 @@
 const app = require('express')();
-const fs = require('fs');
 const hardware = require('./hardware');
+const log = require('./log');
 
-app.get('/shootPhoto', (req, res) => {
-  /*const waitResult = req.query.waitResult ? true : false;
-  const webhook = '';*/
-  hardware.shootPhoto((error) => {
+app.get('/photo', (req, res) => {
+  hardware.shootPhoto((error, path) => {
     if (error) {
       res.type('application/json').status(503).send({ok: false, error: {code: 503, text: error.message}});
+      log(error);
     } else {
-      res.type('application/json').status(200).send({ok: true});
+      res.sendFile(path, (error) => {
+        if (error) {
+          res.type('application/json').status(404).send({ok: false, error: {code: 404, text: 'photo not ready yet'}});
+        }
+      });
     }
   });
 });
 
-app.get('/getPhoto', (req, res) => {
-  res.sendFile('/tmpvid/storage/photo.jpg', (error) => {
-    if (error) {
-      res.type('application/json').status(404).send({ok: false, error: {code: 404, text: 'photo not ready yet'}});
-    }
-  });
-});
-
-app.get('/shootVideo', (req, res) => {
+app.get('/video', (req, res) => {
   const duration = req.query.duration ? parseInt(req.query.duration) : 0;
   if (duration > 0) {
-    hardware.shootVideo(duration, (error) => {
+    hardware.shootVideo(duration, (error, path) => {
       if (error) {
         res.type('application/json').status(503).send({ok: false, error: {code: 503, text: error.message}});
+        log(error);
       } else {
-        res.type('application/json').status(200).send({ok: true});
+        res.sendFile(path, (error) => {
+          if (error) {
+            res.type('application/json').status(404).send({ok: false, error: {code: 404, text: 'video not ready yet'}});
+          }
+        });
       }
     });
   } else {
@@ -37,15 +37,7 @@ app.get('/shootVideo', (req, res) => {
   }
 });
 
-app.get('/getVideo', (req, res) => {
-  res.sendFile('/tmpvid/storage/video.h264', (error) => {
-    if (error) {
-      res.type('application/json').status(404).send({ok: false, error: {code: 404, text: 'video not ready yet'}});
-    }
-  });
-});
-
-app.get('/startStream', (req, res) => {
+app.get('/stream/start', (req, res) => {
   hardware.stream.start((error) => {
     if (error) {
       res.type('application/json').status(503).send({ok: false, error: {code: 503, text: error.message}});
@@ -55,14 +47,8 @@ app.get('/startStream', (req, res) => {
   });
 });
 
-app.get('/stopStream', (req, res) => {
-  hardware.stream.stop(() => {
-    res.type('application/json').status(200).send({ok: true});
-  });
-});
-
-app.get('/measureSensors', (req, res) => {
-  hardware.measureSensors((error) => {
+app.get('/stream/stop', (req, res) => {
+  hardware.stream.stop((error) => {
     if (error) {
       res.type('application/json').status(503).send({ok: false, error: {code: 503, text: error.message}});
     } else {
@@ -71,14 +57,19 @@ app.get('/measureSensors', (req, res) => {
   });
 });
 
-app.get('/getSensors', (req, res) => {
-  fs.readFile('/tmpvid/storage/sensors', (err, data) => {
-    if (err) {
-      res.type('application/json').status(404).send({ok: false, error: {code: 404, text: 'sensors not ready yet'}});
+app.get('/sensors', (req, res) => {
+  hardware.measureSensors((error, data) => {
+    if (error) {
+      res.type('application/json').status(503).send({ok: false, error: {code: 503, text: error.message}});
+      log(error);
     } else {
-      res.type('application/json').status(200).send(data);
+      res.type('application/json').status(200).send({ok: true, sensors: data});
     }
   });
+});
+
+app.get('/state', (req, res) => {
+  res.type('application/json').status(200).send({state: hardware.state()});
 });
 
 app.listen(3000);
