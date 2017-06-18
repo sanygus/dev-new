@@ -1,4 +1,5 @@
 const exec = require('child_process').exec;
+const log = require('./log');
 
 let camBusy = false;
 let state = 'wait';
