@@ -9,7 +9,7 @@ module.exports.shootPhoto = (callback) => {
   if (!camBusy) {
     camBusy = true;
     state = 'shooting Photo';
-    exec(`raspistill -w 320 -h 240 -q 50 -o /tmpvid/storage/photo.jpg`, (error, stdout, stderr) => {
+    exec(`raspistill -w 640 -h 480 -q 50 -o /tmpvid/storage/photo.jpg`, (error, stdout, stderr) => {
       camBusy = false;
       state = 'wait';
       if (error || stderr) {
