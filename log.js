@@ -1,7 +1,9 @@
 const fs = require('fs');
+let errCount = 0;
 
 module.exports = (obj) => {
   if (obj) {
+    errCount++;
     const prefix = (new Date).toISOString() + '    ';
     let out = '';
     if (typeof obj === 'string') {
@@ -19,3 +21,5 @@ module.exports = (obj) => {
     });
   }
 }
+
+module.exports.errCount = () => errCount;

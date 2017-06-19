@@ -1,6 +1,23 @@
 const app = require('express')();
 const hardware = require('./hardware');
 const log = require('./log');
+const options = require('./options');
+
+const startDate = new Date();
+
+app.get('/', (req, res) => {
+  res.type('text/html').status(200).send("\
+    Avalable functions:<ul>\
+      <li>GET /diag</li>\
+      <li>GET /sensors</li>\
+      <li>GET /photo</li>\
+      <li>GET /video</li>\
+      <li>GET /stream/start</li>\
+      <li>GET /stream/stop</li>\
+    </ul>\
+    <a href=\"https://github.com/sanygus/dev-new/blob/master/README.md\">Full documentation</a>\
+  ");
+});
 
 app.get('/photo', (req, res) => {
   hardware.shootPhoto((error, path) => {
@@ -68,8 +85,16 @@ app.get('/sensors', (req, res) => {
   });
 });
 
-app.get('/state', (req, res) => {
-  res.type('application/json').status(200).send({state: hardware.state()});
+app.get('/diag', (req, res) => {
+  res.type('application/json').status(200).send({
+    id: options.id,
+    localtime: new Date().toLocaleString('ru'),
+    geoposition: options.geoposition,
+    charge: +Math.random().toFixed(2),
+    uptime: Math.round((new Date() - startDate) / 1000),
+    errors: log.errCount(),
+    state: hardware.state(),
+  });
 });
 
 app.listen(3000);
