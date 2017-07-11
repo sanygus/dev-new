@@ -1,5 +1,6 @@
 const exec = require('child_process').exec;
 const log = require('./log');
+const { power: powerOptions } = require('./options');
 
 let camBusy = false;
 let state = 'wait';
@@ -66,6 +67,26 @@ module.exports.stream = {
   }
 }
 
+const voltToCharge = (volt) => {
+  let charge = 0;
+  if (volt === undefined) {
+    charge = 1;
+    log('no statistics about volts');
+  } else if ((volt === 0)||(volt < 20)) {
+    charge = 1;
+    log('volt no connected!'); // WARN
+  } else if (volt > powerOptions.maxCharge) {
+    charge = 1;
+    log('outside charge interval >');
+  } else if (volt < powerOptions.minCharge) {
+    charge = 0;
+    log('outside charge interval <');
+  } else {
+    charge = (volt - powerOptions.minCharge) / (powerOptions.maxCharge - powerOptions.minCharge);
+  }
+  return charge;
+}
+
 module.exports.measureSensors = (callback) => {
   exec(`python3 ${hwPath}/ardsens.py`, (error, stdout, stderr) => {
     if (error || stderr) {
@@ -77,6 +98,7 @@ module.exports.measureSensors = (callback) => {
     } else {
       if (sensors.error1) { log(`sensors.error1 ${sensors.error1}`); delete sensors.error1; }
       if (sensors.error2) { log(`sensors.error2 ${sensors.error2}`); delete sensors.error2; }
+      if (sensors.volt !== undefined) { sensors.charge = voltToCharge(sensors.volt); }
       if (Object.keys(sensors).length > 0) {
         sensors.date = (new Date).toISOString();
         callback(null, sensors);
@@ -84,6 +106,36 @@ module.exports.measureSensors = (callback) => {
         callback(new Error('sensors values count is 0'));
       }
     }
+  });
+}
+
+module.exports.shutdown = (sleepTime, callback) => {
+  const time = Math.round(sleepTime);
+  if (time > 0) {
+    exec(`python3 ${hwPath}/ardsleep.py ${time}`, (error, stdout, stderr) => {
+      if (error) { return callback(error); }
+      if (stderr) { return callback(new Error(stderr)); }
+      if (JSON.parse(stdout).success) {
+        exec(`sudo shutdown -h now`, (errorShut, stdoutShut, stderrShut) => {
+          if (errorShut) { return callback(errorShut); }
+          if (stderrShut) { return callback(new Error(stderrShut)); }
+          state = 'shutdown';
+          callback(null);
+        });
+      } else { return callback(new Error("ardsleep fail")); }
+    });
+  } else {
+    return callback(new Error("time must be > 0"));
+  }
+}
+
+module.exports.getSleepStat = (callback) => {
+  exec(`python3 ${hwPath}/ardGetStat.py`, (error, stdout, stderr) => {
+    if (error) { return callback(error); }
+    if (stderr) { return callback(new Error(stderr)); }
+    const stat = JSON.parse(stdout);
+    if (stat.error) { return callback(new Error(stat.error)); }
+    callback(null, stat);
   });
 }
 
