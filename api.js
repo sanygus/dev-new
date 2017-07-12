@@ -101,16 +101,27 @@ app.get('/sensors', (req, res) => {
 
 app.get('/diag', (req, res) => {
   power.startAction();
-  res.type('application/json').status(200).send({
-    id: options.id,
-    localtime: new Date().toLocaleString('ru'),
-    geoposition: options.geoposition,
-    charge: +Math.random().toFixed(2),
-    uptime: Math.round((new Date() - startDate) / 1000),
-    errors: log.errCount(),
-    state: hardware.state(),
+  hardware.measureSensors((error, data) => {
+    let chargeVal = null;
+    if (error) {
+      log(error);
+    } else {
+      if (data.charge !== undefined ) {
+        chargeVal = data.charge;
+      }
+    }
+
+    res.type('application/json').status(200).send({
+      id: options.id,
+      localtime: new Date().toLocaleString('ru'),
+      geoposition: options.geoposition,
+      charge: chargeVal,
+      uptime: Math.round((new Date() - startDate) / 1000),
+      errors: log.errCount(),
+      state: hardware.state(),
+    });
+    power.endAction();
   });
-  power.endAction();
 });
 
 app.listen(3000);
