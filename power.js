@@ -7,13 +7,11 @@ let timer = null;
 
 module.exports.startAction = () => {
   clearTimeout(timer);
-  console.log('start action');
 }
 
 module.exports.endAction = () => {
   clearTimeout(timer);
   timer = setTimeout(goSleep, workTime * 60000);
-  console.log('stop action');
 }
 
 const goSleep = () => {
