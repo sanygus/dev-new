@@ -1,5 +1,5 @@
 module.exports = {
-  id: 'infdev1',
+  id: 'infDev1',
   geoposition: '56.121655, 47.254002',
   workTime: 7,
   dataKeeperFile: 'dktemp.db',
