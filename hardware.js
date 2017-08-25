@@ -67,26 +67,6 @@ module.exports.stream = {
   }
 }
 
-const voltToCharge = (volt) => {
-  let charge = 0;
-  if (volt === undefined) {
-    charge = 1;
-    log('no statistics about volts');
-  } else if ((volt === 0)||(volt < 20)) {
-    charge = 1;
-    log('volt no connected!'); // WARN
-  } else if (volt > powerOptions.maxCharge) {
-    charge = 1;
-    log('outside charge interval >');
-  } else if (volt < powerOptions.minCharge) {
-    charge = 0;
-    log('outside charge interval <');
-  } else {
-    charge = (volt - powerOptions.minCharge) / (powerOptions.maxCharge - powerOptions.minCharge);
-  }
-  return charge;
-}
-
 module.exports.measureSensors = (callback) => {
   exec(`python3 ${hwPath}/ardsens.py`, (error, stdout, stderr) => {
     if (error || stderr) {
@@ -98,7 +78,6 @@ module.exports.measureSensors = (callback) => {
     } else {
       if (sensors.error1) { log(`sensors.error1 ${sensors.error1}`); delete sensors.error1; }
       if (sensors.error2) { log(`sensors.error2 ${sensors.error2}`); delete sensors.error2; }
-      if (sensors.volt !== undefined) { sensors.charge = voltToCharge(sensors.volt); }
       if (Object.keys(sensors).length > 0) {
         sensors.date = (new Date).toISOString();
         callback(null, sensors);
@@ -110,7 +89,7 @@ module.exports.measureSensors = (callback) => {
 }
 
 module.exports.shutdown = (sleepTime, callback) => {
-  const time = Math.round(sleepTime);
+  const time = Math.round(sleepTime);//min
   if (time > 0) {
     exec(`python3 ${hwPath}/ardsleep.py ${time}`, (error, stdout, stderr) => {
       if (error) { return callback(error); }

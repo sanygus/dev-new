@@ -1,6 +1,6 @@
 const http = require('http');
 const options = require('./options');
-const dataKeeper = require('./dataKeeper');
+//const dataKeeper = require('./dataKeeper');
 const log = require('./log');
 
 const sendToServer = (values, callback) => {//values in JSON { par1: 'value' }
@@ -36,7 +36,17 @@ const sendToServer = (values, callback) => {//values in JSON { par1: 'value' }
   }
 }
 
-const sendFromFile = () => {
+const send = (values) => {
+  sendToServer(values, (err) => {
+    if (err) {
+      setTimeout(() => {
+        send(values);
+      }, 30 * 1000);
+    }
+  });
+}
+
+/*const sendFromFile = () => {
   dataKeeper.dataAvailable((available) => {
     if (available) {
       dataKeeper.get((err, data) => {
@@ -69,6 +79,6 @@ const send = (values, fromFile = 0) => {
       }
     }
   });
-}
+}*/
 
 module.exports = send;
