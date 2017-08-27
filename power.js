@@ -32,7 +32,7 @@ setInterval(() => {
       log("no charge");
     }
   });
-}, 60000);
+}, 30000);
 
 setTimeout(() => {
   sender({ "type": "info", "event": "wakeup", "date": new Date((new Date).valueOf() - 25000).toISOString() });

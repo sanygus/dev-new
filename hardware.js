@@ -4,7 +4,7 @@ const { power: powerOptions } = require('./options');
 
 let camBusy = false;
 let state = 'wait';
-const hwPath = '../sensprod/sens-dev-hw';
+const hwPath = '../sens-dev-hw';
 
 module.exports.shootPhoto = (callback) => {
   if (!camBusy) {
