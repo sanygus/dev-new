@@ -64,24 +64,26 @@ app.get('/video', (req, res) => {
 });
 
 app.get('/stream/start', (req, res) => {
+  power.startAction();
   hardware.stream.start((error) => {
     if (error) {
       res.type('application/json').status(503).send({ok: false, error: {code: 503, text: error.message}});
     } else {
       res.type('application/json').status(200).send({ok: true});
-      power.startAction();
     }
+    power.endAction();
   });
 });
 
 app.get('/stream/stop', (req, res) => {
+  power.startAction();
   hardware.stream.stop((error) => {
     if (error) {
       res.type('application/json').status(503).send({ok: false, error: {code: 503, text: error.message}});
     } else {
       res.type('application/json').status(200).send({ok: true});
-      power.endAction();
     }
+    power.endAction();
   });
 });
 
