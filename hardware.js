@@ -46,7 +46,7 @@ module.exports.stream = {
   start: (callback) => {
     if (!camBusy) {
       //const cmd = `uv4l -nopreview --auto-video_nr --driver raspicam --encoding mjpeg --width 640 --height 480 --framerate 5`;
-      const cmd = `v4l2rtspserver -P 8080 -F 10 -S > /dev/null 2>&1 &`;
+      const cmd = `v4l2rtspserver -F 10 > /dev/null 2>&1 &`;
       exec(cmd, (error, stdout, stderr) => {
         camBusy = true;
         state = 'streaming Video';
