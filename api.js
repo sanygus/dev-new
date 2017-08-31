@@ -92,12 +92,11 @@ app.get('/sensors', (req, res) => {
   hardware.measureSensors((error, data) => {
     if (error) {
       res.type('application/json').status(503).send({ok: false, error: {code: 503, text: error.message}});
-      power.endAction();
       log(error);
     } else {
       res.type('application/json').status(200).send({ok: true, sensors: data});
-      power.endAction();
     }
+    power.endAction();
   });
 });
 
