@@ -126,4 +126,10 @@ app.get('/diag', (req, res) => {
   });
 });
 
+app.get('/nosleep', (req, res) => {
+  power.startAction();
+  res.type('application/json').status(200).send({ok: true});
+  power.endAction();
+});
+
 app.listen(3000);
