@@ -102,18 +102,16 @@ app.get('/sensors', (req, res) => {
 
 app.get('/diag', (req, res) => {
   power.startAction();
-  hardware.measureSensors((error, data) => {
+  hardware.getCharge((error, charge) => {
     let chargeVal = null;
     if (error) {
       log(error);
     } else {
-      if (data.charge !== undefined ) {
-        chargeVal = data.charge;
-      }
+      chargeVal = charge;
     }
 
     res.type('application/json').status(200).send({
-      id: options.id,
+      id: options.devid,
       localtime: new Date().toLocaleString('ru'),
       geoposition: options.geoposition,
       charge: chargeVal,

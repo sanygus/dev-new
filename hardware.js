@@ -4,7 +4,7 @@ const { power: powerOptions } = require('./options');
 
 let camBusy = false;
 let state = 'wait';
-const hwPath = '../sens-dev-hw';
+const hwPath = '../sens-dev-hw/ardpy';
 
 module.exports.shootPhoto = (callback) => {
   if (!camBusy) {
@@ -46,7 +46,7 @@ module.exports.stream = {
   start: (callback) => {
     if (!camBusy) {
       //const cmd = `uv4l -nopreview --auto-video_nr --driver raspicam --encoding mjpeg --width 640 --height 480 --framerate 5`;
-      const cmd = `v4l2rtspserver -F 10 > /dev/null 2>&1 &`;
+      const cmd = `v4l2rtspserver -W 1280 -H 720 -F 10 > /dev/null 2>&1 &`;
       exec(cmd, (error, stdout, stderr) => {
         camBusy = true;
         state = 'streaming Video';
@@ -70,7 +70,7 @@ module.exports.stream = {
 }
 
 module.exports.measureSensors = (callback) => {
-  exec(`python3 ${hwPath}/ardsens.py`, (error, stdout, stderr) => {
+  exec(`python3 ${hwPath}/getSens.py`, (error, stdout, stderr) => {
     if (error || stderr) {
       return callback(error || new Error(stderr));
     }
@@ -90,10 +90,23 @@ module.exports.measureSensors = (callback) => {
   });
 }
 
+module.exports.getCharge = (callback) => {
+  exec(`python3 ${hwPath}/getCharge.py`, (error, stdout, stderr) => {
+    if (error || stderr) {
+      return callback(error || new Error(stderr));
+    }
+    const out = JSON.parse(stdout)
+    if (out.error) {
+      return callback(new Error(out.error));
+    }
+    callback(null, out.charge);
+  });
+}
+
 module.exports.shutdown = (sleepTime, callback) => {
   const time = Math.round(sleepTime);//min
   if (time > 0) {
-    exec(`python3 ${hwPath}/ardsleep.py ${time}`, (error, stdout, stderr) => {
+    exec(`python3 ${hwPath}/sleep.py ${time}`, (error, stdout, stderr) => {
       if (error) { return callback(error); }
       if (stderr) { return callback(new Error(stderr)); }
       if (JSON.parse(stdout).success) {
@@ -111,7 +124,7 @@ module.exports.shutdown = (sleepTime, callback) => {
 }
 
 module.exports.getSleepStat = (callback) => {
-  exec(`python3 ${hwPath}/ardGetStat.py`, (error, stdout, stderr) => {
+  exec(`python3 ${hwPath}/sleepStat.py`, (error, stdout, stderr) => {
     if (error) { return callback(error); }
     if (stderr) { return callback(new Error(stderr)); }
     const stat = JSON.parse(stdout);

@@ -1,8 +1,7 @@
-const { shutdown, getSleepStat, measureSensors } = require('./hardware');
+const { shutdown, getSleepStat, getCharge } = require('./hardware');
 const { workTime, lowCharge } = require('./options');
 const sender = require('./sender');
 const log = require('./log');
-
 let timer = null;
 
 module.exports.startAction = () => {
@@ -16,32 +15,30 @@ module.exports.endAction = () => {
 
 const goSleep = (reason) => {
   const sleepTime = 48 * 60;
-  sender({ "type": "info", "event": "sleep", "time": sleepTime, reason, "date": (new Date).toISOString() });
+  sender.sendSleep(sleepTime);
   shutdown(sleepTime - 1, (error) => {
     if (error) { log(error); }
   });
+  log(`go sleep by reason ${reason}`);
 }
 
 setInterval(() => {
-  measureSensors((err, sensors) => {
-    if (sensors && sensors.charge !== undefined) {
-      if (sensors.charge <= lowCharge) {
+  getCharge((error, charge) => {
+    if (error) { log(error); } else {
+      if (charge <= lowCharge) {
         goSleep("low charge");
       }
-    } else {
-      log("no charge");
     }
   });
 }, 30000);
 
 setTimeout(() => {
-  sender({ "type": "info", "event": "wakeup", "date": new Date((new Date).valueOf() - 25000).toISOString() });
+  sender.sendWakeup();
   getSleepStat((err, stat) => {
     if (err) {
       log(`getStatError ${err.message}`);
-      sender({ "type": "info", "event": "warn", "message": `getStatError ${err.message}`, "date": (new Date).toISOString() });
     } else {
-      sender({ "type": "info", "event": "stat", "data": JSON.stringify(stat), "date": new Date((new Date).valueOf() - 25000).toISOString() });
+      log(`sleepStat: ${stat}`);
     }
   });
 }, 25000);

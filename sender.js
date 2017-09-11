@@ -1,84 +1,42 @@
 const http = require('http');
 const options = require('./options');
-//const dataKeeper = require('./dataKeeper');
 const log = require('./log');
 
-const sendToServer = (values, callback) => {//values in JSON { par1: 'value' }
-  let getQuery = `iddev=${options.id}&`;
-  let isValues = false;
-  let srvPath = options.server.path;
-  for(key in values) {
-    getQuery += `${encodeURI(key)}=${encodeURI(values[key])}&`;
-    isValues = true;
-    if (key === "type" && values[key] === "info") {
-      srvPath = "/log";
-    }
-  }
-  if (isValues) {
-    http.get({
-      hostname: options.server.host,
-      port: options.server.port,
-      path: srvPath + '?' + getQuery,
-      agent: false
-    }, (res) => {
-      let error = null;
-      res.on('data', (data) => {
-        if(res.statusCode !== 202 || JSON.parse(data).status !== 'ok') {
-          error = new Error('err in answ');
-        }
-      });
-      res.on('end', () => {
-        callback(error);
-      })
-    }).on('error', (e) => {
-      callback(e);
-    })
-  }
+module.exports.sendWakeup = () => {
+  sendToServer(`/event/${options.devid}/wakeup?devdate=${new Date().toJSON()}`);
 }
 
-const send = (values) => {
-  sendToServer(values, (err) => {
-    if (err) {
-      setTimeout(() => {
-        send(values);
-      }, 30 * 1000);
-    }
-  });
+module.exports.sendSleep = (sleeptime) => {
+  sendToServer(`/event/${options.devid}/sleep?devdate=${new Date().toJSON()}&time=${sleeptime}`);
 }
 
-/*const sendFromFile = () => {
-  dataKeeper.dataAvailable((available) => {
-    if (available) {
-      dataKeeper.get((err, data) => {
-        if (err) { log(err); } else {
-          send(data, 1);
-        }
-      })
-    }
-  });
+module.exports.sendError = (msg) => {
+  sendToServer(`/event/${options.devid}/error?devdate=${new Date().toJSON()}&msg=${encodeURI(msg)}`);
 }
 
-const send = (values, fromFile = 0) => {
-  sendToServer(values, (err) => {
-    if (err) {
-      log(err);
-      if (!fromFile) {
-        dataKeeper.add(values, (err) => {
-          if (err) { log(err); }
-        });
+module.exports.sendHB = (charge) => {
+  sendToServer(`/heartbeat/${options.devid}/rpi&charge=${charge}`);
+}
+
+const sendToServer = (path) => {
+  http.get({
+    hostname: options.server.host,
+    port: options.server.port,
+    path,
+    agent: false
+  }, (res) => {
+    res.on('data', (data) => {
+      if (!(res.statusCode == 200 && JSON.parse(data).ok)) {
+        log('err in answ');
       }
-    } else {
-      if (fromFile) {
-        dataKeeper.del((err) => {
-          if (err) { log(err); } else {
-            sendFromFile();
-          }
-        });
-      } else {
-        sendFromFile();
-      }
-    }
+    });
+    res.on('end', () => {});
+  }).on('error', (e) => {
+    log(e);
+    setTimeout(() => {
+      sendToServer(path);
+      console.log(`repeat sender ${path}`);
+    }, 10 * 1000);
   });
-}*/
+}
 
-module.exports = send;
