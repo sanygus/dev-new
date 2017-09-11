@@ -19,6 +19,7 @@ module.exports.sendHB = (charge) => {
 }
 
 const sendToServer = (path) => {
+  console.log(path);
   http.get({
     hostname: options.server.host,
     port: options.server.port,

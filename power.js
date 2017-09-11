@@ -29,6 +29,7 @@ setInterval(() => {
         goSleep("low charge");
       }
     }
+    sender.sendHB(charge);
   });
 }, 30000);
 
