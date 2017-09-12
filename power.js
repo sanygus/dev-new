@@ -31,7 +31,7 @@ setInterval(() => {
     }
     sender.sendHB(charge);
   });
-}, 30000);
+}, 20000);
 
 setTimeout(() => {
   sender.sendWakeup();
@@ -39,7 +39,7 @@ setTimeout(() => {
     if (err) {
       log(`getStatError ${err.message}`);
     } else {
-      log(`sleepStat: ${stat}`);
+      log(`sleepStat: ${JSON.stringify(stat)}`);
     }
   });
 }, 25000);

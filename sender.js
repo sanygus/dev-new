@@ -15,7 +15,7 @@ module.exports.sendError = (msg) => {
 }
 
 module.exports.sendHB = (charge) => {
-  sendToServer(`/heartbeat/${options.devid}/rpi&charge=${charge}`);
+  sendToServer(`/heartbeat/${options.devid}/rpi?charge=${charge}`);
 }
 
 const sendToServer = (path) => {
