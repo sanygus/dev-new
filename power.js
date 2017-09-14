@@ -25,7 +25,9 @@ const goSleep = (reason) => {
 setInterval(() => {
   getCharge((error, charge) => {
     if (error) { log(error); } else {
-      if (charge <= lowCharge) {
+      if (charge === 0) {
+        log("charge not connected");
+      } else if (charge <= lowCharge) {
         goSleep("low charge");
       }
     }
