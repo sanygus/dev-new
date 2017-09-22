@@ -16,9 +16,11 @@ module.exports.endAction = () => {
 const goSleep = (reason) => {
   const sleepTime = 48 * 60;
   sender.sendSleep(sleepTime);
-  shutdown(sleepTime - 1, (error) => {
-    if (error) { log(error); }
-  });
+  setTimeout(() => {
+    shutdown(sleepTime - 1, (error) => {
+      if (error) { log(error); }
+    });
+  }, 3000);
   log(`go sleep by reason ${reason}`);
 }
 
