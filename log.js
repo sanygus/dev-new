@@ -3,13 +3,13 @@ let errCount = 0;
 
 module.exports = (obj) => {
   if (obj) {
-    errCount++;
     const prefix = (new Date).toISOString() + '    ';
     let out = '';
     if (typeof obj === 'string') {
       out = obj.slice();
     } else if (typeof obj === 'object') {
       if (obj instanceof Error) {
+        errCount++;
         out = 'Error: ' + obj.message;
       } else {
         out = JSON.stringify(obj);
