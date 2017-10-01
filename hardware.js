@@ -10,7 +10,7 @@ module.exports.shootPhoto = (callback) => {
   if (!camBusy) {
     camBusy = true;
     state = 'shooting Photo';
-    exec(`raspistill -n -w 640 -h 480 -q 50 -o /tmpvid/storage/photo.jpg`, (error, stdout, stderr) => {
+    exec(`raspistill -n -w 1280 -h 960 -q 50 -o /tmpvid/storage/photo.jpg`, (error, stdout, stderr) => {
       camBusy = false;
       state = 'wait';
       if (error || stderr) {
@@ -28,7 +28,7 @@ module.exports.shootVideo = (duration, callback) => {
   if (!camBusy && (duration > 0)) {
     camBusy = true;
     state = 'shooting Video';
-    exec(`raspivid -t ${duration * 1000} -w 320 -h 240 -o /tmpvid/storage/video.h264`, (error, stdout, stderr) => {
+    exec(`raspivid -t ${duration * 1000} -w 1280 -h 960 -o /tmpvid/storage/video.h264`, (error, stdout, stderr) => {
       camBusy = false;
       state = 'wait';
       if (error || stderr) {
@@ -46,7 +46,7 @@ module.exports.stream = {
   start: (callback) => {
     if (!camBusy) {
       //const cmd = `uv4l -nopreview --auto-video_nr --driver raspicam --encoding mjpeg --width 640 --height 480 --framerate 5`;
-      const cmd = `v4l2rtspserver -W 1280 -H 720 -F 10 > /dev/null 2>&1 &`;
+      const cmd = `v4l2rtspserver -W 1280 -H 960 -F 10 > /dev/null 2>&1 &`;
       exec(cmd, (error, stdout, stderr) => {
         camBusy = true;
         state = 'streaming Video';
