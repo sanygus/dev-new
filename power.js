@@ -46,6 +46,6 @@ setTimeout(() => {
       log(`sleepStat: ${JSON.stringify(stat)}`);
     }
   });
-}, 25000);
+}, 19000);
 
 module.exports.endAction();
