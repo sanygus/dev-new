@@ -2,6 +2,7 @@ const { shutdown, getSleepStat, getCharge } = require('./hardware');
 const { workTime, lowCharge } = require('./options');
 const sender = require('./sender');
 const log = require('./log');
+const netready = require('./netready');
 let timer = null;
 
 module.exports.startAction = () => {
@@ -24,6 +25,7 @@ const goSleep = (reason) => {
   log(`go sleep by reason ${reason}`);
 }
 
+/* ANALYSE
 setInterval(() => {
   getCharge((error, charge) => {
     if (error) { log(error); } else {
@@ -38,7 +40,6 @@ setInterval(() => {
 }, 20000);
 
 setTimeout(() => {
-  sender.sendWakeup();
   getSleepStat((err, stat) => {
     if (err) {
       log(`getStatError ${err.message}`);
@@ -46,6 +47,11 @@ setTimeout(() => {
       log(`sleepStat: ${JSON.stringify(stat)}`);
     }
   });
-}, 19000);
+}, 1000);
+*/
+
+netready(() => {
+  sender.sendWakeup();
+});
 
 module.exports.endAction();
