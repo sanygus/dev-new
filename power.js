@@ -25,8 +25,7 @@ const goSleep = (reason) => {
   log(`go sleep by reason ${reason}`);
 }
 
-/* ANALYSE
-setInterval(() => {
+const sendHBCharge = () => {
   getCharge((error, charge) => {
     if (error) { log(error); } else {
       if (charge === 0) {
@@ -37,7 +36,8 @@ setInterval(() => {
     }
     sender.sendHB(charge);
   });
-}, 20000);
+  setTimeout(sendHBCharge, 20000);
+}
 
 setTimeout(() => {
   getSleepStat((err, stat) => {
@@ -48,10 +48,10 @@ setTimeout(() => {
     }
   });
 }, 1000);
-*/
 
 netready(() => {
   sender.sendWakeup();
+  sendHBCharge();
 });
 
 module.exports.endAction();

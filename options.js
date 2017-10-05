@@ -4,7 +4,7 @@ module.exports = {
   workTime: 5,
   lowCharge: 0.15,
   server: {//for sender
-    host: 'localhost',
-    port: 1234,
+    host: '172.30.0.1',
+    port: 3001,
   },
 }
