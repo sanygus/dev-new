@@ -50,8 +50,8 @@ setTimeout(() => {
 }, 1000);
 
 netready(() => {
-  sender.sendWakeup();
   sendHBCharge();
+  setTimeout(sender.sendWakeup, 2000);
 });
 
 module.exports.endAction();
