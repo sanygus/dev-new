@@ -4,6 +4,7 @@ const log = require('./log');
 
 module.exports.sendWakeup = () => {
   sendToServer(`/event/${options.devid}/wakeup?devdate=${new Date().toJSON()}`);
+  log('try send wakeup');
 }
 
 module.exports.sendSleep = (sleeptime) => {
@@ -36,7 +37,7 @@ const sendToServer = (path) => {
     log(e);
     setTimeout(() => {
       sendToServer(path);
-      console.log(`repeat sender ${path}`);
+      log(`repeat sender ${path}`);
     }, 10 * 1000);
   });
 }
