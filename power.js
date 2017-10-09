@@ -21,7 +21,7 @@ const goSleep = (reason) => {
     shutdown(sleepTime - 1, (error) => {
       if (error) { log(error); }
     });
-  }, 3000);
+  }, 11000);
   log(`go sleep by reason ${reason}`);
 }
 
