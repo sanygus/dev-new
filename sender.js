@@ -38,7 +38,7 @@ const sendToServer = (path) => {
     setTimeout(() => {
       sendToServer(path);
       log(`repeat sender ${path}`);
-    }, 10 * 1000);
+    }, 5 * 1000);
   });
 }
 
